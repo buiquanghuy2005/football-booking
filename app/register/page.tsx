@@ -78,10 +78,9 @@ export default function RegisterPage() {
                     'Register success',
                 );
 
-                // ⭐ redirect
-                router.push(
-                    '/my-bookings',
-                );
+                // ⭐ reload + redirect
+                window.location.href =
+                    '/my-bookings';
             } catch (error: any) {
                 console.log(error);
 
@@ -209,6 +208,7 @@ export default function RegisterPage() {
                             font-bold
                             hover:opacity-90
                             transition
+                            disabled:opacity-50
                         "
                     >
                         {loading
