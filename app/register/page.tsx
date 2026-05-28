@@ -40,6 +40,7 @@ export default function RegisterPage() {
             try {
                 setLoading(true);
 
+                // ⭐ register
                 await api.post(
                     '/auth/register',
                     {
@@ -48,11 +49,39 @@ export default function RegisterPage() {
                     },
                 );
 
+                // ⭐ auto login
+                const loginRes =
+                    await api.post(
+                        '/auth/login',
+                        {
+                            email,
+                            password,
+                        },
+                    );
+
+                // ⭐ save token
+                localStorage.setItem(
+                    'token',
+                    loginRes.data
+                        .access_token,
+                );
+
+                localStorage.setItem(
+                    'user',
+                    JSON.stringify(
+                        loginRes.data
+                            .user,
+                    ),
+                );
+
                 alert(
                     'Register success',
                 );
 
-                router.push('/login');
+                // ⭐ redirect
+                router.push(
+                    '/my-bookings',
+                );
             } catch (error: any) {
                 console.log(error);
 
