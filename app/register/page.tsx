@@ -20,12 +20,16 @@ export default function RegisterPage() {
         setConfirmPassword,
     ] = useState('');
 
+    // ⭐ ROLE
+    const [role, setRole] =
+        useState('USER');
+
     const [loading, setLoading] =
         useState(false);
 
     const handleRegister =
         async () => {
-            // ⭐ check confirm password
+            // ⭐ confirm password
             if (
                 password !==
                 confirmPassword
@@ -46,6 +50,7 @@ export default function RegisterPage() {
                     {
                         email,
                         password,
+                        role,
                     },
                 );
 
@@ -78,9 +83,17 @@ export default function RegisterPage() {
                     'Register success',
                 );
 
-                // ⭐ reload + redirect
-                window.location.href =
-                    '/my-bookings';
+                // ⭐ redirect by role
+                if (
+                    loginRes.data.user
+                        .role === 'OWNER'
+                ) {
+                    window.location.href =
+                        '/owner';
+                } else {
+                    window.location.href =
+                        '/my-bookings';
+                }
             } catch (error: any) {
                 console.log(error);
 
@@ -192,6 +205,32 @@ export default function RegisterPage() {
                             )
                         }
                     />
+
+                    {/* ROLE */}
+                    <select
+                        value={role}
+                        onChange={(e) =>
+                            setRole(
+                                e.target.value,
+                            )
+                        }
+                        className="
+                            w-full
+                            border
+                            p-4
+                            rounded-2xl
+                            outline-none
+                            focus:border-black
+                        "
+                    >
+                        <option value="USER">
+                            User
+                        </option>
+
+                        <option value="OWNER">
+                            Owner
+                        </option>
+                    </select>
 
                     {/* BUTTON */}
                     <button
