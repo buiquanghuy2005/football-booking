@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -8,6 +8,29 @@ import { api } from '@/lib/api';
 
 export default function CreateFieldPage() {
     const router = useRouter();
+
+    // ⭐ RBAC
+    const [authorized, setAuthorized] =
+        useState(false);
+
+    useEffect(() => {
+        const user = JSON.parse(
+            localStorage.getItem('user') ||
+            '{}',
+        );
+
+        if (
+            user &&
+            (user.role === 'OWNER' ||
+                user.role === 'ADMIN')
+        ) {
+            setAuthorized(true);
+        } else {
+            alert('Access denied');
+
+            router.replace('/');
+        }
+    }, [router]);
 
     const [name, setName] =
         useState('');
@@ -21,11 +44,9 @@ export default function CreateFieldPage() {
     const [description, setDescription] =
         useState('');
 
-    // ⭐ FILE
     const [image, setImage] =
         useState<File | null>(null);
 
-    // ⭐ PREVIEW
     const [preview, setPreview] =
         useState('');
 
@@ -59,7 +80,6 @@ export default function CreateFieldPage() {
                 description,
             );
 
-            // ⭐ IMAGE FILE
             if (image) {
                 formData.append(
                     'image',
@@ -78,17 +98,35 @@ export default function CreateFieldPage() {
                 },
             );
 
+            alert(
+                'Create field success',
+            );
+
             router.push('/owner');
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
 
-            alert(
-                'Create field failed',
-            );
+            if (
+                error?.response?.status ===
+                403
+            ) {
+                alert(
+                    'You do not have permission to create fields',
+                );
+            } else {
+                alert(
+                    'Create field failed',
+                );
+            }
         } finally {
             setLoading(false);
         }
     };
+
+    // ⭐ chưa xác thực xong thì không render
+    if (!authorized) {
+        return null;
+    }
 
     return (
         <div className="min-h-screen bg-gray-100 flex justify-center items-center p-10">
@@ -98,7 +136,6 @@ export default function CreateFieldPage() {
                 </h1>
 
                 <div className="space-y-5">
-                    {/* NAME */}
                     <input
                         type="text"
                         placeholder="Field Name"
@@ -111,7 +148,6 @@ export default function CreateFieldPage() {
                         }
                     />
 
-                    {/* ADDRESS */}
                     <input
                         type="text"
                         placeholder="Address"
@@ -124,7 +160,6 @@ export default function CreateFieldPage() {
                         }
                     />
 
-                    {/* PRICE */}
                     <input
                         type="number"
                         placeholder="Price Per Hour"
@@ -137,7 +172,6 @@ export default function CreateFieldPage() {
                         }
                     />
 
-                    {/* DESCRIPTION */}
                     <textarea
                         placeholder="Description"
                         className="w-full border p-4 rounded-2xl h-36"
@@ -149,7 +183,6 @@ export default function CreateFieldPage() {
                         }
                     />
 
-                    {/* IMAGE */}
                     <div>
                         <label className="block text-lg font-semibold mb-3">
                             Upload Image
@@ -179,7 +212,6 @@ export default function CreateFieldPage() {
                         />
                     </div>
 
-                    {/* PREVIEW */}
                     {preview && (
                         <div>
                             <img
@@ -196,7 +228,6 @@ export default function CreateFieldPage() {
                         </div>
                     )}
 
-                    {/* BUTTON */}
                     <button
                         onClick={
                             createField
