@@ -1,8 +1,40 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 
+import { useRouter } from 'next/navigation';
+
 export default function OwnerDashboard() {
+    const router = useRouter();
+
+    const [authorized, setAuthorized] =
+        useState(false);
+
+    useEffect(() => {
+        const user = JSON.parse(
+            localStorage.getItem('user') ||
+            '{}',
+        );
+
+        if (
+            user &&
+            (user.role === 'OWNER' ||
+                user.role === 'ADMIN')
+        ) {
+            setAuthorized(true);
+        } else {
+            alert('Access denied');
+
+            router.replace('/');
+        }
+    }, [router]);
+
+    if (!authorized) {
+        return null;
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 p-10">
             <h1 className="text-5xl font-black mb-10">

@@ -2,7 +2,41 @@
 
 import Link from 'next/link';
 
+import {
+    useEffect,
+    useState,
+} from 'react';
+
+import { useRouter } from 'next/navigation';
+
 export default function AdminDashboard() {
+    const router = useRouter();
+
+    const [authorized, setAuthorized] =
+        useState(false);
+
+    useEffect(() => {
+        const user = JSON.parse(
+            localStorage.getItem('user') ||
+            '{}',
+        );
+
+        if (
+            user &&
+            user.role === 'ADMIN'
+        ) {
+            setAuthorized(true);
+        } else {
+            alert('Access denied');
+
+            router.replace('/');
+        }
+    }, [router]);
+
+    if (!authorized) {
+        return null;
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 p-10">
             <h1 className="text-5xl font-black mb-10">
@@ -26,7 +60,8 @@ export default function AdminDashboard() {
                     </h2>
 
                     <p className="mt-4 text-gray-500">
-                        Manage all football fields
+                        Manage all football
+                        fields
                     </p>
                 </Link>
 
@@ -46,7 +81,8 @@ export default function AdminDashboard() {
                     </h2>
 
                     <p className="mt-4 text-gray-500">
-                        Accept or cancel bookings
+                        Accept or cancel
+                        bookings
                     </p>
                 </Link>
             </div>

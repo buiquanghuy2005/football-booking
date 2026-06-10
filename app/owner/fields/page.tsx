@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import {
     Pencil,
     Trash2,
@@ -30,6 +32,10 @@ interface Field {
 }
 
 export default function OwnerFieldsPage() {
+    const router = useRouter();
+
+    const [authorized, setAuthorized] =
+        useState(false);
     const [fields, setFields] =
         useState<Field[]>([]);
 
@@ -64,8 +70,27 @@ export default function OwnerFieldsPage() {
         useState<File | null>(null);
 
     useEffect(() => {
-        fetchFields();
-    }, []);
+        const user = JSON.parse(
+            localStorage.getItem('user') ||
+            '{}',
+        );
+
+        if (
+            user &&
+            (
+                user.role === 'OWNER' ||
+                user.role === 'ADMIN'
+            )
+        ) {
+            setAuthorized(true);
+
+            fetchFields();
+        } else {
+            alert('Access denied');
+
+            router.replace('/');
+        }
+    }, [router]);
 
     const fetchFields = async () => {
         try {
@@ -222,7 +247,9 @@ export default function OwnerFieldsPage() {
             alert('Delete failed');
         }
     };
-
+    if (!authorized) {
+        return null;
+    }
     return (
         <div className="min-h-screen bg-gray-100">
             {/* HERO */}

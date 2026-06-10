@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { api } from '@/lib/api';
 
 interface Booking {
@@ -27,6 +29,10 @@ interface Booking {
 }
 
 export default function AdminBookingsPage() {
+    const router = useRouter();
+
+    const [authorized, setAuthorized] =
+        useState(false);
     const [bookings, setBookings] =
         useState<Booking[]>([]);
 
@@ -40,8 +46,24 @@ export default function AdminBookingsPage() {
         useState('');
 
     useEffect(() => {
-        fetchBookings();
-    }, []);
+        const user = JSON.parse(
+            localStorage.getItem('user') ||
+            '{}',
+        );
+
+        if (
+            user &&
+            user.role === 'ADMIN'
+        ) {
+            setAuthorized(true);
+
+            fetchBookings();
+        } else {
+            alert('Access denied');
+
+            router.replace('/');
+        }
+    }, [router]);
 
     useEffect(() => {
         filterBookings();
@@ -129,7 +151,9 @@ export default function AdminBookingsPage() {
             alert('Cancel failed');
         }
     };
-
+    if (!authorized) {
+        return null;
+    }
     return (
         <div className="min-h-screen bg-gray-100 p-10">
             <div className="mb-10">
