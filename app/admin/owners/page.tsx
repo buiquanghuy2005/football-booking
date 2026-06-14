@@ -8,6 +8,7 @@ interface Owner {
     id: string;
     email: string;
     role: string;
+    isActive: boolean;
     createdAt: string;
 
     fields: {
@@ -62,7 +63,21 @@ export default function AdminOwnersPage() {
             setLoading(false);
         }
     };
+    const toggleOwner = async (
+        id: string,
+    ) => {
+        try {
+            await api.patch(
+                `/admin/owners/${id}/toggle`,
+            );
 
+            fetchOwners();
+        } catch (error) {
+            console.log(error);
+
+            alert('Update failed');
+        }
+    };
     if (!authorized) {
         return null;
     }
@@ -92,13 +107,19 @@ export default function AdminOwnersPage() {
                                 <th className="text-left p-5">
                                     Email
                                 </th>
-
+                                <th className="text-left p-5">
+                                    Status
+                                </th>
                                 <th className="text-left p-5">
                                     Fields
                                 </th>
 
                                 <th className="text-left p-5">
                                     Created
+                                </th>
+
+                                <th className="text-left p-5">
+                                    Action
                                 </th>
                             </tr>
                         </thead>
@@ -119,17 +140,47 @@ export default function AdminOwnersPage() {
                                         </td>
 
                                         <td className="p-5 font-bold">
-                                            {
-                                                owner
-                                                    .fields
-                                                    .length
-                                            }
+                                            {owner.fields.length}
+                                        </td>
+
+                                        <td className="p-5">
+                                            {owner.isActive ? (
+                                                <span className="text-green-600 font-bold">
+                                                    Active
+                                                </span>
+                                            ) : (
+                                                <span className="text-red-500 font-bold">
+                                                    Disabled
+                                                </span>
+                                            )}
                                         </td>
 
                                         <td className="p-5">
                                             {new Date(
                                                 owner.createdAt,
                                             ).toLocaleDateString()}
+                                        </td>
+                                        <td className="p-5">
+                                            <button
+                                                onClick={() =>
+                                                    toggleOwner(owner.id)
+                                                }
+                                                className={`
+            px-4
+            py-2
+            rounded-xl
+            text-white
+            font-semibold
+            ${owner.isActive
+                                                        ? 'bg-red-500'
+                                                        : 'bg-green-600'
+                                                    }
+        `}
+                                            >
+                                                {owner.isActive
+                                                    ? 'Disable'
+                                                    : 'Enable'}
+                                            </button>
                                         </td>
                                     </tr>
                                 ),
