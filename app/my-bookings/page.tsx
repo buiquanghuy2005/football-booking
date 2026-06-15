@@ -36,7 +36,30 @@ export default function MyBookingsPage() {
     useEffect(() => {
         fetchBookings();
     }, []);
+    const cancelBooking = async (
+        id: string,
+    ) => {
+        const confirmed =
+            window.confirm(
+                'Are you sure you want to cancel this booking?',
+            );
 
+        if (!confirmed) return;
+
+        try {
+            await api.post(
+                `/bookings/my-cancel/${id}`,
+            );
+
+            fetchBookings();
+        } catch (error) {
+            console.log(error);
+
+            alert(
+                'Cancel booking failed',
+            );
+        }
+    };
     const fetchBookings = async () => {
         try {
             const res =
@@ -224,17 +247,17 @@ export default function MyBookingsPage() {
                                             </div>
 
                                             {/* ACTION */}
-                                            <div className="flex gap-4 mt-8">
+                                            <div className="flex gap-4 mt-8 flex-wrap">
                                                 <Link
                                                     href={`/fields/${booking.field.id}`}
                                                     className="
-                                                        bg-black
-                                                        text-white
-                                                        px-6
-                                                        py-4
-                                                        rounded-2xl
-                                                        font-bold
-                                                    "
+            bg-black
+            text-white
+            px-6
+            py-4
+            rounded-2xl
+            font-bold
+        "
                                                 >
                                                     View Field
                                                 </Link>
@@ -242,15 +265,37 @@ export default function MyBookingsPage() {
                                                 <Link
                                                     href={`/my-bookings/${booking.id}`}
                                                     className="
-                                                        border
-                                                        px-6
-                                                        py-4
-                                                        rounded-2xl
-                                                        font-bold
-                                                    "
+            border
+            px-6
+            py-4
+            rounded-2xl
+            font-bold
+        "
                                                 >
                                                     Booking Details
                                                 </Link>
+
+                                                {booking.status !==
+                                                    'CANCELLED' && (
+                                                        <button
+                                                            onClick={() =>
+                                                                cancelBooking(
+                                                                    booking.id,
+                                                                )
+                                                            }
+                                                            className="
+                bg-red-500
+                text-white
+                px-6
+                py-4
+                rounded-2xl
+                font-bold
+                hover:bg-red-600
+            "
+                                                        >
+                                                            Cancel Booking
+                                                        </button>
+                                                    )}
                                             </div>
                                         </div>
                                     </div>
